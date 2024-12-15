@@ -1,12 +1,18 @@
 package com.jasonko.springbootmail.dao.impl;
 
 import com.jasonko.springbootmail.dao.ProductDao;
+import com.jasonko.springbootmail.dto.ProductRequest;
 import com.jasonko.springbootmail.model.Product;
 import com.jasonko.springbootmail.rowmapper.ProductRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,5 +41,43 @@ public class ProductDaoImpl implements ProductDao {
         else {
             return null;
         }
+    }
+
+    @Override
+    public Integer createProduct(ProductRequest productRequest) {
+        String sql = " insert into product( "
+                   + " product_name , category , image_url , price , stock "
+                   + " , description, created_date, last_modified_date "
+                   + " ) values ( "
+                   + " :productName, :category, :imageUrl, :price, :stock "
+                   + " , :description, :created_date, :last_modified_date "
+                   + " ) "
+                   ;
+        Map<String , Object> map = new HashMap<>();
+        map.put("productName" , productRequest.getProduct_name());
+        map.put("category" , productRequest.getCategory().toString());
+        map.put("imageUrl" , productRequest.getImage_url());
+        map.put("price" , productRequest.getPrice());
+        map.put("stock" , productRequest.getStock());
+        map.put("description" , productRequest.getDescription());
+
+        Date now = new Date();
+        map.put("created_date" , now);
+        map.put("last_modified_date" , now);
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
+        }
+        try {
+            namedParameterJdbcTemplate.update(sql , new MapSqlParameterSource(map) , keyHolder);
+        } catch (Exception e) {
+            //System.err.println(e.getMessage());
+            e.printStackTrace();
+        }
+
+        int productId = keyHolder.getKey().intValue();
+
+        return productId;
     }
 }
