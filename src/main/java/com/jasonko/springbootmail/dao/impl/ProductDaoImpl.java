@@ -46,13 +46,13 @@ public class ProductDaoImpl implements ProductDao {
     @Override
     public Integer createProduct(ProductRequest productRequest) {
         String sql = " insert into product( "
-                   + " product_name , category , image_url , price , stock "
-                   + " , description, created_date, last_modified_date "
-                   + " ) values ( "
-                   + " :productName, :category, :imageUrl, :price, :stock "
-                   + " , :description, :created_date, :last_modified_date "
-                   + " ) "
-                   ;
+                + " product_name , category , image_url , price , stock "
+                + " , description, created_date, last_modified_date "
+                + " ) values ( "
+                + " :productName, :category, :imageUrl, :price, :stock "
+                + " , :description, :created_date, :last_modified_date "
+                + " ) "
+                ;
         Map<String , Object> map = new HashMap<>();
         map.put("productName" , productRequest.getProduct_name());
         map.put("category" , productRequest.getCategory().toString());
@@ -79,5 +79,37 @@ public class ProductDaoImpl implements ProductDao {
         int productId = keyHolder.getKey().intValue();
 
         return productId;
+    }
+
+    @Override
+    public void updateProduct(Integer productId , ProductRequest productRequest) {
+        String sql = " update product set "
+                + " product_name = :productName "
+                + " , category = :category "
+                + " , image_url = :imageUrl "
+                + " , price = :price "
+                + " , stock = :stock "
+                + " , description = :description "
+                + " , last_modified_date = :last_modified_date "
+                + " where product_id = :product_id "
+                ;
+
+        Map<String , Object> map = new HashMap<>();
+        map.put("product_id" , productId);
+
+        map.put("productName" , productRequest.getProduct_name());
+        map.put("category" , productRequest.getCategory().toString());
+        map.put("imageUrl" , productRequest.getImage_url());
+        map.put("price" , productRequest.getPrice());
+        map.put("stock" , productRequest.getStock());
+        map.put("description" , productRequest.getDescription());
+
+        map.put("last_modified_date" , new Date());
+
+        try {
+            namedParameterJdbcTemplate.update(sql , map);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
