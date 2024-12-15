@@ -3,7 +3,11 @@ package com.jasonko.springbootmail.dao;
 import com.jasonko.springbootmail.dto.ProductRequest;
 import com.jasonko.springbootmail.model.Product;
 
+import java.util.List;
+
 public interface ProductDao {
+
+    List<Product> getProducts();
 
     Product getProdutById(Integer productId);
 
