@@ -2,6 +2,7 @@ package com.jasonko.springbootmail.dao.impl;
 
 import com.jasonko.springbootmail.constant.ProductCategory;
 import com.jasonko.springbootmail.dao.ProductDao;
+import com.jasonko.springbootmail.dto.ProductQueryParams;
 import com.jasonko.springbootmail.dto.ProductRequest;
 import com.jasonko.springbootmail.model.Product;
 import com.jasonko.springbootmail.rowmapper.ProductRowMapper;
@@ -25,7 +26,7 @@ public class ProductDaoImpl implements ProductDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
-    public List<Product> getProducts(ProductCategory category , String search) {
+    public List<Product> getProducts(ProductQueryParams productQueryParams) {
         String sql = "select product_id , product_name, category, image_url, price"
                 + " , stock, description, created_date, last_modified_date "
                 + " from  product where 1 = 1 "
@@ -33,14 +34,18 @@ public class ProductDaoImpl implements ProductDao {
 
         Map<String , Object>map = new HashMap<>();
 
-        if (category != null) {
-            sql = sql + " and category = :category";
-            map.put("category", category.name());
+        if (productQueryParams.getCategory() != null) {
+            sql += " and category = :category";
+            map.put("category", productQueryParams.getCategory().name());
         }
-        if (search != null) {
-            sql = sql + " and product_name like :search";
-            map.put("search", "%" + search + "%");
+        if (productQueryParams.getSearch() != null) {
+            sql += " and product_name like :search";
+            map.put("search", "%" + productQueryParams.getSearch() + "%");
         }
+
+        sql += " order by " + productQueryParams.getOrderBy()
+            +  " " + productQueryParams.getSort()
+            ;
 
         List<Product> productList = namedParameterJdbcTemplate.query(sql, map , new ProductRowMapper());
 
